@@ -1,10 +1,10 @@
 -- This script prepares a MySQL server for the AirBnB project
 
 -- Creating the database hbnb_dev_db
-CREATE DATABASE IF NOT EXIST hbnb_dev_db;
+CREATE DATABASE IF NOT EXISTS hbnb_dev_db;
 
 -- creating a user
-CREATE USER IF NOT EXIST 'hbnb_dev'@'localhost' IDENTIFIED BY 'hbnb_dev_pwd';
+CREATE USER IF NOT EXISTS 'hbnb_dev'@'localhost' IDENTIFIED BY 'hbnb_dev_pwd';
 
 -- Granting the priviledge on hbnb_dev_db
 GRANT ALL PRIVILEDGES ON hbnb_dev_db.* TO 'hbnb_dev'@'localhost';
