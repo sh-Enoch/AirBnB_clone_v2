@@ -1,5 +1,8 @@
 -- This script prepares a MySQL server for the AirBnB project
 
+-- Setting the password policy to LOW
+SET GLOBAL validate_password_policy = LOW;
+
 -- Creating the database hbnb_dev_db
 CREATE DATABASE IF NOT EXISTS hbnb_dev_db;
 
