@@ -23,7 +23,7 @@ class DBStorage:
         if os.getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
-    def all(self, cls=None):
+    '''def all(self, cls=None):
         """Query on the current database session"""
         objects = {}
         if cls:
@@ -34,6 +34,21 @@ class DBStorage:
         else:
             for cls in Base.__subclasses__():
                 query = self.__session.query(cls).all()
+                for obj in query:
+                    key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+                    objects[key] = obj
+        return objects'''
+    def all(self, cls=None):
+        """Query on the current database session"""
+        objects = {}
+        if cls:
+            query = self.__session.query(cls).all()
+            for obj in query:
+                key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+                objects[key] = obj
+        else:
+            for subclass in Base.__subclasses__():
+                query = self.__session.query(subclass).all()
                 for obj in query:
                     key = '{}.{}'.format(obj.__class__.__name__, obj.id)
                     objects[key] = obj
