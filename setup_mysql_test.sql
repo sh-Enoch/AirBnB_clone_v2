@@ -1,22 +1,11 @@
-#!/bin/bash
+-- Create the database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS hbnb_test_db;
 
-# MySQL credentials
-MYSQL_USER="root"
-MYSQL_PASSWORD="bsitc01/"
+-- Create the user if it doesn't exist and set the password
+CREATE USER IF NOT EXISTS 'hbnb_test'@'localhost' IDENTIFIED BY 'hbnb_test_pwd';
 
-# Database and user information
-DATABASE="hbnb_test_db"
-USER="hbnb_test"
-PASSWORD="hbnb_test_pwd"
+-- Grant all privileges on the database hbnb_test_db to the user hbnb_test
+GRANT ALL PRIVILEGES ON hbnb_test_db.* TO 'hbnb_test'@'localhost';
 
-# Create database if not exists
-mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "CREATE DATABASE IF NOT EXISTS $DATABASE;"
-
-# Create user if not exists
-mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "CREATE USER IF NOT EXISTS '$USER'@'localhost' IDENTIFIED BY '$PASSWORD';"
-
-# Grant privileges on hbnb_test_db
-mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "GRANT ALL PRIVILEGES ON $DATABASE.* TO '$USER'@'localhost';"
-
-# Grant SELECT privilege on performance_schema
-mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" -e "GRANT SELECT ON performance_schema.* TO '$USER'@'localhost';"
+-- Grant SELECT privilege on the database performance_schema to the user hbnb_test
+GRANT SELECT ON performance_schema.* TO 'hbnb_test'@'localhost';
