@@ -1,7 +1,8 @@
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, DateTime
 import uuid
 from datetime import datetime
-from models import storage
+from models.__INIT__ import storage
 
 Base = declarative_base()
 
