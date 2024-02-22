@@ -1,27 +1,25 @@
-from sqlalchemy import Column, String, ForeignKey
+#!/usr/bin/python3
+
+from sqlalchemy import Column, String
+from models.city import City
 from sqlalchemy.orm import relationship
-from models.base_model import BaseModel, Base
+from models.base_model import BaseModel, Base, storage_type
+
 
 class State(BaseModel, Base):
-    """State class"""
+    """ State class """
 
     __tablename__ = 'states'
 
     name = Column(String(128), nullable=False)
 
-    # For DBStorage: Represents a relationship with the class City
-    # If the State object is deleted, all linked City objects must be automatically deleted
-    cities = relationship("City", cascade="all, delete-orphan", backref="state")
-
-    # For FileStorage: Getter attribute cities that returns the list of City instances
-    # with state_id equals to the current State.id
-    @property
-    def cities(self):
-        """Getter attribute to return the list of City instances"""
-        from models import storage
-        from models.city import City
-        cities_list = []
-        for city in storage.all(City).values():
-            if city.state_id == self.id:
-                cities_list.append(city)
-        return cities_list
+    if storage_type == 'db':
+        cities = relationship("City", cascade="all, delete-orphan", backref="state")
+    else:
+        @property
+        def cities(self):
+            """Getter attribute that returns the list of City instances with state_id equals
+               to the current State.id"""
+            from models import storage
+            city_instances = storage.all(City)
+            return [city for city in city_instances.values() if city.state_id == self.id]
