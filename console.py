@@ -2,12 +2,12 @@
 """ Console Module """
 import cmd
 import sys
-from models.base_model import BaseModel
+from models.BASEMODEL import BaseModel
 from models.__init__ import storage
 from models.user import User
 from models.place import Place
-from models.state import State
-from models.city import City
+from models.STATE import State
+from models.CITY import City
 from models.amenity import Amenity
 from models.review import Review
 
@@ -126,56 +126,50 @@ class HBNBCommand(cmd.Cmd):
         print(new_instance.id)
         storage.save()'''
     def do_create(self, arg):
-        """Create an object of any class."""
-        try:
-            if not args:
-                raise SyntaxError()
-            arg_list = args.split(" ")
-            kw = {}
-            for arg in arg_list[1:]:
-                arg_splitted = arg.split("=")
-                arg_splitted[1] = eval(arg_splitted[1])
-                if type(arg_splitted[1]) is str:
-                    arg.splitted[1] = arg.splitted[1].replace("_", " ").replace('"', '\\"')
-                kw[arg_splitted[0]] = arg_splitted[1]
-        except SyntaxError:
+        if not arg:
             print("** class name missing **")
             return
 
         args = arg.split()
         class_name = args[0]
 
+        # Check if the class exists
         if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
 
-        # Initialize dictionary to store attribute key-value pairs
-        kwargs = {}
         # Parse parameters
+        params = {}
         for param in args[1:]:
-            try:
-                key, value = param.split('=')
-
-                # Process value based on its type
-                if value.startswith('"') and value.endswith('"'):
-                    # String value
-                    value = value[1:-1].replace('_', ' ').replace('\\"', '"')
-                elif '.' in value:
-                    # Float value
+            # Split parameter into key and value
+            key, value = param.split('=')
+            # Handle value based on its type
+            if value.startswith('"') and value.endswith('"'):
+                # String: Remove quotes and replace underscores with spaces
+                value = value[1:-1].replace('_', ' ')
+            elif '.' in value:
+                try:
+                    # Float: Convert to float
                     value = float(value)
-                else:
-                    # Integer value
+                except ValueError:
+                    # If conversion fails, skip parameter
+                    continue
+            else:
+                try:
+                    # Integer: Convert to int
                     value = int(value)
-                    kwargs[key] = value
-            except ValueError:
-                # Skip parameters that don't fit the syntax
-                print(f"Skipping parameter: {param}")
+                except ValueError:
+                    # If conversion fails, skip parameter
+                    continue
 
+            # Add parameter to dictionary
+            params[key] = value
+
+        print("Params:", params)
         # Create object with given parameters
-        new_instance = HBNBCommand.classes[class_name](**kwargs)
+        new_instance = HBNBCommand.classes[class_name](**params)
         storage.save()
         print(new_instance.id)
-
 
     def help_create(self):
         """ Help information for the create method """
