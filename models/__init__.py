@@ -2,7 +2,7 @@
 """This module initializes the storage mechanism based on environment variable"""
 
 import os
-from models.state import State
+# from models.state import State
 
 
 # Import necessary storage classes

@@ -3,7 +3,7 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from models.base_model import Base
+# from models.base_model import Base
 
 
 class DBStorage:
@@ -14,6 +14,7 @@ class DBStorage:
 
     def __init__(self):
         """Initialize DBStorage"""
+        from models.base_model import Base
         self.__engine = create_engine(
             'mysql+mysqldb://{}:{}@{}/{}'
             .format(os.getenv('HBNB_MYSQL_USER'),
@@ -53,6 +54,7 @@ class DBStorage:
 
     def reload(self):
         """Reload database"""
+        from models.base_model import Base
         Base.metadata.create_all(self.__engine)
         self.__session = scoped_session(sessionmaker(bind=self.__engine,
                                                       expire_on_commit=False))

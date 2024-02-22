@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime
-from models import storage
+# from models import storage
 
 class BaseModel:
     """A base class for all hbnb models"""
@@ -36,6 +36,7 @@ class BaseModel:
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""
+        from models import storage
         self.updated_at = datetime.utcnow()
         storage.new(self)
         storage.save()
@@ -52,4 +53,5 @@ class BaseModel:
 
     def delete(self):
         """Deletes the current instance from the storage"""
+        from models import storage
         storage.delete(self)
