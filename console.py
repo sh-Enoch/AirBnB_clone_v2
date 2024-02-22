@@ -133,43 +133,37 @@ class HBNBCommand(cmd.Cmd):
         args = arg.split()
         class_name = args[0]
 
-        # Check if the class exists
         if class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
 
+        # Initialize dictionary to store attribute key-value pairs
+        kwargs = {}
         # Parse parameters
-        params = {}
         for param in args[1:]:
-            # Split parameter into key and value
-            key, value = param.split('=')
-            # Handle value based on its type
-            if value.startswith('"') and value.endswith('"'):
-                # String: Remove quotes and replace underscores with spaces
-                value = value[1:-1].replace('_', ' ')
-            elif '.' in value:
-                try:
-                    # Float: Convert to float
-                    value = float(value)
-                except ValueError:
-                    # If conversion fails, skip parameter
-                    continue
-            else:
-                try:
-                    # Integer: Convert to int
-                    value = int(value)
-                except ValueError:
-                    # If conversion fails, skip parameter
-                    continue
+            try:
+                key, value = param.split('=')
 
-            # Add parameter to dictionary
-            params[key] = value
-        
-        print("Params:", params)
+                # Process value based on its type
+                if value.startswith('"') and value.endswith('"'):
+                    # String value
+                    value = value[1:-1].replace('_', ' ').replace('\\"', '"')
+                elif '.' in value:
+                    # Float value
+                    value = float(value)
+                else:
+                    # Integer value
+                    value = int(value)
+                    kwargs[key] = value
+            except ValueError:
+                # Skip parameters that don't fit the syntax
+                print(f"Skipping parameter: {param}")
+
         # Create object with given parameters
-        new_instance = HBNBCommand.classes[class_name](**params)
+        new_instance = HBNBCommand.classes[class_name](**kwargs)
         storage.save()
         print(new_instance.id)
+
 
     def help_create(self):
         """ Help information for the create method """
