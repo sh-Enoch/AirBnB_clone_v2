@@ -1,39 +1,30 @@
+#!/usr/bin/python3
+"""
+Fabric script based on the file 1-pack_web_static.py that distributes an
+archive to the web servers
+"""
 
-from fabric import task, Connection
-import os
+from fabric.api import put, run, env
+from os.path import exists
+env.hosts = ['54.89.109.87', '100.25.190.21']
 
-@task
-def do_deploy(c, archive_path, ssh_user, ssh_key):
-    # Set the SSH username and key filename
-    env.user = ssh_user
-    env.key_filename = ssh_key
 
-    # Check if the archive file exists
-    if not os.path.exists(archive_path):
-        print(f"Archive file '{archive_path}' not found.")
+def do_deploy(archive_path):
+    """distributes an archive to the web servers"""
+    if exists(archive_path) is False:
         return False
-
-    # Get the filename from the archive path
-    archive_filename = os.path.basename(archive_path)
-    # Remove the file extension to get the release folder name
-    release_folder = os.path.splitext(archive_filename)[0]
-
-    # Upload the archive to /tmp/ directory on each server
-    for host in env.hosts:
-        c.put(archive_path, '/tmp/')
-
-        # Uncompress the archive to /data/web_static/releases/<release_folder>
-        with Connection(host) as conn:
-            conn.sudo(f'mkdir -p /data/web_static/releases/{release_folder}')
-            conn.sudo(f'tar -xzf /tmp/{archive_filename} -C /data/web_static/releases/{release_folder}')
-
-            # Delete the archive from the server
-            conn.run(f'rm /tmp/{archive_filename}')
-
-            # Delete the existing symbolic link /data/web_static/current
-            conn.sudo('rm -f /data/web_static/current')
-
-            # Create a new symbolic link /data/web_static/current linked to the new version
-            conn.sudo(f'ln -s /data/web_static/releases/{release_folder} /data/web_static/current')
-
-    return True
+    try:
+        file_n = archive_path.split("/")[-1]
+        no_ext = file_n.split(".")[0]
+        path = "/data/web_static/releases/"
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}{}/'.format(path, no_ext))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
+        run('rm /tmp/{}'.format(file_n))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
+        run('rm -rf {}{}/web_static'.format(path, no_ext))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
+        return True
+    except:
+        return False
