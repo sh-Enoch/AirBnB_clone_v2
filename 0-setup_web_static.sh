@@ -1,12 +1,32 @@
 #!/usr/bin/env bash
-# prepares webserver by installing nginx and confuguring it
-sudo apt-get -y update
-sudo apt-get -y install nginx
+
+# Install Nginx if not already installed
+sudo apt-get update
+sudo apt-get install -y nginx
+
+# Create necessary directories
 sudo mkdir -p /data/web_static/releases/test/
 sudo mkdir -p /data/web_static/shared/
-echo "Testing nginx" > /data/web_static/releases/test/index.html
+sudo mkdir -p /data/web_static/current/
 
+# Create a fake HTML file
+echo "<html><head></head><body>Holberton School</body></html>" | sudo tee /data/web_static/releases/test/index.html
+
+# Create symbolic link
 sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
+
+# Give ownership of /data/ to ubuntu user and group recursively
 sudo chown -R ubuntu:ubuntu /data/
-sudo sed -i "56i\ \tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t\tautoindex off;\n\t}\n"  /etc/nginx/sites-available/default
-sudo service nginx start
+
+# Output results
+echo $?  # Output the exit status of the last command
+ls -l /data
+ls -l /data/web_static
+ls /data/web_static/current
+cat /data/web_static/current/index.html
+
+# Restart Nginx
+sudo service nginx restart
+
+# Test if Nginx is serving the content correctly
+curl localhost/hbnb_static/index.html
