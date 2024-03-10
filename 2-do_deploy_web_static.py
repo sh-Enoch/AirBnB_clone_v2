@@ -1,43 +1,39 @@
-#!/usr/bin/python3
-""" generates a .tgz archive from the contents of web_static"""
-from datetime import datetime
-from fabric.api import *
-from fabric.operations import run, put, sudo
+
+from fabric import task, Connection
 import os
-env.hosts = ["100.25.21.172", "52.87.232.176"]
 
+@task
+def do_deploy(c, archive_path, ssh_user, ssh_key):
+    # Set the SSH username and key filename
+    env.user = ssh_user
+    env.key_filename = ssh_key
 
-def do_pack():
-    """creates a tar file"""
-    try:
-        local("mkdir -p versions")
-        time = datetime.now()
-        time = time.strftime("%Y%m%d%H%M%S")
-        filename = "versions/web_static_{}.tgz".format(time)
-        local("tar -czvf {} web_static/".format(filename))
-        return filename
-    except:
-        return None
-
-
-def do_deploy(archive_path):
-    """deployer method"""
-    if not os.path.isfile(archive_path):
+    # Check if the archive file exists
+    if not os.path.exists(archive_path):
+        print(f"Archive file '{archive_path}' not found.")
         return False
-    # get file incase /path/to/file is passed
-    archive = archive_path.split("/")[-1]
-    # given in requirement
-    destination = "/data/web_static/releases/{}".format(archive.split(".")[0])
-    put(archive_path, "/tmp/")
-    run("mkdir -p {}".format(destination))
-    # unzip to /data/web_static/releases/<archive filename without extension>
-    run("tar -zxf /tmp/{} --directory {}".format(archive, destination))
-    # Delete the archive from the web server
-    run("rm /tmp/{}".format(archive))
-    # Not sure
-    run("mv {}/web_static/* {}".format(destination, destination))
-    run("rm -rf {}/web_static".format(destination))
-    # create symlink
-    run(" rm -rf /data/web_static/current")
-    run("ln -s {} /data/web_static/current".format(destination))
+
+    # Get the filename from the archive path
+    archive_filename = os.path.basename(archive_path)
+    # Remove the file extension to get the release folder name
+    release_folder = os.path.splitext(archive_filename)[0]
+
+    # Upload the archive to /tmp/ directory on each server
+    for host in env.hosts:
+        c.put(archive_path, '/tmp/')
+
+        # Uncompress the archive to /data/web_static/releases/<release_folder>
+        with Connection(host) as conn:
+            conn.sudo(f'mkdir -p /data/web_static/releases/{release_folder}')
+            conn.sudo(f'tar -xzf /tmp/{archive_filename} -C /data/web_static/releases/{release_folder}')
+
+            # Delete the archive from the server
+            conn.run(f'rm /tmp/{archive_filename}')
+
+            # Delete the existing symbolic link /data/web_static/current
+            conn.sudo('rm -f /data/web_static/current')
+
+            # Create a new symbolic link /data/web_static/current linked to the new version
+            conn.sudo(f'ln -s /data/web_static/releases/{release_folder} /data/web_static/current')
+
     return True
