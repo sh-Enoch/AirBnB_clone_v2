@@ -9,7 +9,7 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     """This method display a string"""
-    return "Hello HBNB"
+    return "Hello HBNB!"
 
 
 @app.route("/hbnb")
