@@ -16,9 +16,9 @@ def show():
     return "HBNB"
 
 
-@app.route("/c/string: name", strict_slashes=False)
-def display(name):
-    return "C %s" % (name)
+@app.route("/c/<text>", strict_slashes=False)
+def display(text):
+    return (f'C {text}')
 
 
 if __name__ == "__main__":
