@@ -16,7 +16,7 @@ def show():
     return "HBNB"
 
 
-@app.route("/c/<text>", strict_slashes=False)
+@app.route("/c/<str:text>", strict_slashes=False)
 def display(text):
     return (f'C {text}')
 
