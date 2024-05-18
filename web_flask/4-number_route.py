@@ -33,7 +33,7 @@ def python(text):
     return (f"Python {text}")
 
 
-@app.route("/number/<int:n>", strict_slashes= False)
+@app.route("/number/<int:n>", strict_slashes=False)
 def number(n):
     """Default int."""
     return f"{n} is a number"
