@@ -43,19 +43,19 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 serialized_objects = json.load(f)
                 for key, val in serialized_objects.items():
-                    class_name = val['__class__']
-                    obj = eval(class_name + '(**val)')
-                    self.__objects[key] = obj
+                    self.__objects[key] = eval(value['__class__'])(**v)
+
         except FileNotFoundError:
             pass
 
     def delete(self, obj=None):
         """Deletes obj from __objects if it's inside"""
-        if obj is None:
-            return
-        key = "{}.{}".format(obj.__class__.__name__, obj.id)
-        if key in self.__objects:
-            del self.__objects[key]
+        if obj:
+            for key, values in FileStorage.__objects.items():
+                if obj == values:
+                    del FileStorage.__objects[key] = values
+        else:
+            pass
 
     def close():
         """this method deserialize the json file"""
